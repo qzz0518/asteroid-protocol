@@ -65,14 +65,14 @@ export const environment = {
     endpoint: 'https://api.asteroidprotocol.io/v1/graphql',
     wss: 'wss://api.asteroidprotocol.io/v1/graphql',
     explorer: 'https://www.mintscan.io/cosmos/tx/',
-    simulateEndpoint: "https://cosmos-rest.publicnode.com",
+    simulateEndpoint: "https://cosmos-rest.cosmos-apis.com",
     stargazeNameEndpoint: "https://rest.stargaze-apis.com/cosmwasm/wasm/v1/contract/stars1fx74nkqkw2748av8j7ew7r3xt9cgjqduwn8m0ur5lhe49uhlsasszc5fhr/smart/"
   },
   chain: {
     chainId: "cosmoshub-4",
     chainName: "Cosmos Hub",
-    rpc: "https://cosmos-rpc.publicnode.com",
-    rest: "https://cosmos-rest.publicnode.com",
+    rpc: "https://cosmos-rpc.cosmos-apis.com",
+    rest: "https://cosmos-rest.cosmos-apis.com",
     bip44: {
       coinType: 118
     },
