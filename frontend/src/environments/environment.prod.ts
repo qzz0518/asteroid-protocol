@@ -45,7 +45,7 @@ export const environment = {
           minTradeSize: 0.000001,
         },
         buy: {
-          receiver: "neutron1unc0549k2f0d7mjjyfm94fuz2x53wrx3px0pr55va27grdgmspcqgzfr8p",
+          receiver: "neutron162mdca7dfk2rpqlv0hhc6sepnvwdxv5ympu766",
           denom: "uatom",
           amount: "0.02", // Default 2%
           type: "dynamic-percent"
@@ -71,8 +71,8 @@ export const environment = {
   chain: {
     chainId: "cosmoshub-4",
     chainName: "Cosmos Hub",
-    rpc: "https://rpc-nodes.asteroidprotocol.io",
-    rest: "https://nodes.asteroidprotocol.io",
+    rpc: "https://cosmos-rpc.publicnode.com",
+    rest: "https://cosmos-rest.publicnode.com",
     bip44: {
       coinType: 118
     },
