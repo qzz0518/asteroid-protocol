@@ -61,16 +61,20 @@
                   </span>
                 </div>
               </ion-col>
+
               <div class="warning-message">
-                <p>
+                <p class="see-link">
+                  <span>See: </span>
+                  <a href="https://medium.com/@asteroidprotocol/asteroid-market-double-buy-solution-1a1312216f37" target="_blank">Asteroid Market Double-Buy Mitigation</a>
+                </p>                <p>
                   <strong>Warning:</strong> The indexer can lag behind, and you can lose money buying stale listings. Wait for the launch of official marketplace if you don't understand the risks.
                   <br>
-                  <strong>Estimated Indexer Delay:</strong> 8 sec
+                  <strong>Estimated Indexer Delay:</strong> 6~8 sec
                 </p>
                 <p>
                   <strong>警告：</strong>官方索引器可能会滞后，购买过时的列表可能会导致亏损。由于没有中间商，你的付款是直接打给卖家，这样会造成你付了钱，收不到币。如果您不了解风险，请等待官方更新市场的推出。
                   <br>
-                  <strong>预计索引器延迟：</strong>8秒
+                  <strong>预计索引器延迟：</strong>6~8秒
                 </p>
               </div>
 
@@ -83,7 +87,22 @@
                   margin-top: 20px;
                   font-size: 0.9em;
                 }
+                .see-link {
+                  margin-bottom: 10px; /* Add space between this line and the next paragraph */
+                }
+                .see-link a {
+                  color: #333;
+                  text-decoration: underline;
+                  font-size: 1.1em; /* Make the link text larger */
+                  font-weight: bold;
+                }
+
+                .see-link span {
+                  font-weight: bold;
+                  margin-right: 5px; /* Add space between 'see' and the link */
+                }
               </style>
+
             </ion-row>
             <ion-row>
               <ion-col size="12" class="text-end">
