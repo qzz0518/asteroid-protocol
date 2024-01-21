@@ -81,7 +81,7 @@
                   <ion-label>Metaprotocols</ion-label>
                 </ion-list-header>
               </ion-list>
-              <ion-accordion-group [multiple]="false" value="inscriptions">
+              <ion-accordion-group [multiple]="false" value="tokens">
                 <ion-accordion value="inscriptions">
                   <ion-item slot="header" lines="none">
                     <ion-label>Inscriptions</ion-label>
@@ -128,14 +128,25 @@
                       routerLinkActive="active"
                       lines="none"
                     >
-                      <ion-label>Browse</ion-label>
+                      <ion-label>Token List</ion-label>
                     </ion-item>
                   </ion-menu-toggle>
-                  <!-- <ion-menu-toggle autoHide="false" slot="content">
+                  <ion-menu-toggle autoHide="false" slot="content">
                     <ion-item [button]="true" [routerLink]="['/app/markets']" routerLinkActive="active" lines="none">
                       <ion-label>Markets</ion-label>
                     </ion-item>
-                  </ion-menu-toggle> -->
+                  </ion-menu-toggle>
+                  <ion-menu-toggle autoHide="false" slot="content">
+                    <ion-item
+                      [button]="true"
+                      [routerLink]="['/app/market/ROIDS']"
+                      routerLinkActive="active"
+                      lines="none"
+                    >
+                      <ion-label>Buy $ROIDS</ion-label>
+                    </ion-item>
+                  </ion-menu-toggle>
+
                 </ion-accordion>
               </ion-accordion-group>
             </ion-col>
