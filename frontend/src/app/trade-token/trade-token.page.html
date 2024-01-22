@@ -152,7 +152,9 @@
                     <td class="mono">{{ position.total | tokenDecimals:6 | number:'1.6-6'}} (${{position.total *
                       baseTokenUSD |
                       tokenDecimals:6 | number:'1.6-6'}})</td>
-                    <td>{{ formatAddress(position.seller_address) }}</td>
+                    <td>
+                      <a [routerLink]="['/app/wallet', position.seller_address]">{{ formatAddress(position.seller_address) }}</a>
+                    </td>
                     <td>{{ position.date_created | utcToLocal | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
                     <td class="text-end">
                       <ion-button fill="outline" color="success" (click)="buy(position.id)"
@@ -189,8 +191,12 @@
                     <td>{{ item.rate / 1000000 | number:'1.6-6' }} (${{ (item.rate / 1000000) * baseTokenUSD | number:'1.5-5' }})</td>
                     <td>{{ item.amount_quote / 1000000 | number:'1.0-0' }}</td>
                     <td>${{ item.total_usd | number:'1.2-2' }}</td>
-                    <td>{{ formatAddress(item.buyer_address) }}</td>
-                    <td>{{ formatAddress(item.seller_address) }}</td>
+                    <td>
+                      <a [routerLink]="['/app/wallet', item.buyer_address]">{{ formatAddress(item.buyer_address) }}</a>
+                    </td>
+                    <td>
+                      <a [routerLink]="['/app/wallet', item.seller_address]">{{ formatAddress(item.seller_address) }}</a>
+                    </td>
                     <td>{{ item.transaction.date_created | utcToLocal | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
                     <td><a [href]="explorerTxUrl + item.transaction.hash">Link</a></td>
                   </tr>
