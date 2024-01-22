@@ -8,6 +8,7 @@ import { Chain, Subscription } from '../core/types/zeus';
 import { ShortenAddressPipe } from '../core/pipe/shorten-address.pipe';
 import { HumanSupplyPipe } from '../core/pipe/human-supply.pipe';
 import { TokenDecimalsPipe } from '../core/pipe/token-with-decimals.pipe';
+import { UtcToLocalPipe } from '../core/pipe/utc-to-local.pipe';
 import { CFT20Service } from '../core/metaprotocol/cft20.service';
 import { TransactionFlowModalPage } from '../transaction-flow-modal/transaction-flow-modal.page';
 import { WalletService } from '../core/service/wallet.service';
@@ -22,9 +23,10 @@ import { WalletRequiredModalPage } from '../wallet-required-modal/wallet-require
   templateUrl: './trade-token.page.html',
   styleUrls: ['./trade-token.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ShortenAddressPipe, RouterLink, DatePipe, HumanSupplyPipe, TokenDecimalsPipe, TableModule]
+  imports: [IonicModule, CommonModule, FormsModule, ShortenAddressPipe, RouterLink, DatePipe, HumanSupplyPipe, TokenDecimalsPipe, TableModule, UtcToLocalPipe]
 })
 export class TradeTokenPage implements OnInit {
+  selectedSection: string = 'tokens';
   isLoading = false;
   token: any;
   positions: any;
@@ -40,7 +42,7 @@ export class TradeTokenPage implements OnInit {
 
   async ngOnInit() {
     this.isLoading = true;
-
+    this.selectedSection = this.activatedRoute.snapshot.queryParams["section"] || 'buy';
     const walletConnected = await this.walletService.isConnected();
     if (walletConnected) {
       this.walletAddress = (await this.walletService.getAccount()).address;
@@ -366,6 +368,8 @@ export class TradeTokenPage implements OnInit {
   formatAddress(address: string): string {
     return `${address.substring(0, 12)} ... ${address.substring(address.length - 5)}`;
   }
-
+  sectionChanged($event: any) {
+    this.selectedSection = $event.detail.value;
+  }
 
 }
