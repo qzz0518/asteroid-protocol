@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, AlertController } from '@ionic/angular';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from 'src/environments/environment';
-import { Chain, Subscription } from '../core/types/zeus';
+import {Chain, order_by, Subscription} from '../core/types/zeus';
 import { ShortenAddressPipe } from '../core/pipe/shorten-address.pipe';
 import { HumanSupplyPipe } from '../core/pipe/human-supply.pipe';
 import { TokenDecimalsPipe } from '../core/pipe/token-with-decimals.pipe';
@@ -26,7 +28,8 @@ import { WalletRequiredModalPage } from '../wallet-required-modal/wallet-require
   imports: [IonicModule, CommonModule, FormsModule, ShortenAddressPipe, RouterLink, DatePipe, HumanSupplyPipe, TokenDecimalsPipe, TableModule, UtcToLocalPipe]
 })
 export class TradeTokenPage implements OnInit {
-  selectedSection: string = 'tokens';
+  selectedSection: string = 'buy';
+  activityData: any[] = [];
   isLoading = false;
   token: any;
   positions: any;
@@ -36,13 +39,14 @@ export class TradeTokenPage implements OnInit {
   baseTokenUSD: number = 0.00;
   walletAddress: string = '';
 
-  constructor(private activatedRoute: ActivatedRoute, private protocolService: CFT20Service, private modalCtrl: ModalController, private alertController: AlertController, private walletService: WalletService, private priceService: PriceService) {
+  constructor(private activatedRoute: ActivatedRoute, private protocolService: CFT20Service, private modalCtrl: ModalController, private alertController: AlertController, private walletService: WalletService, private priceService: PriceService,private http: HttpClient) {
     this.tokenLaunchDate = new Date();
   }
 
   async ngOnInit() {
     this.isLoading = true;
     this.selectedSection = this.activatedRoute.snapshot.queryParams["section"] || 'buy';
+    this.loadActivityData();
     const walletConnected = await this.walletService.isConnected();
     if (walletConnected) {
       this.walletAddress = (await this.walletService.getAccount()).address;
@@ -370,6 +374,42 @@ export class TradeTokenPage implements OnInit {
   }
   sectionChanged($event: any) {
     this.selectedSection = $event.detail.value;
+    if (this.selectedSection === 'activity') {
+      this.loadActivityData();
+    }
   }
 
+  async loadActivityData() {
+    const ticker = this.activatedRoute.snapshot.params["quote"].toUpperCase();
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+    });
+    const body = {
+      query: `
+        query {
+          token_trade_history(where: { _and: [{ token: { ticker: { _eq: "${ticker}" } } }] }, limit: 500, order_by: [{ transaction_id: desc }]) {
+            amount_quote
+            buyer_address
+            seller_address
+            rate
+            total_usd
+            transaction {
+              hash
+              date_created
+            }
+          }
+        }
+      `
+    };
+
+    this.http.post('https://api.asteroidprotocol.io/v1/graphql', JSON.stringify(body), { headers })
+      .subscribe({
+        next: (data: any) => {
+          this.activityData = data.data.token_trade_history;
+        },
+        error: (error) => {
+          console.error('Error fetching activity data:', error);
+        }
+      });
+  }
 }

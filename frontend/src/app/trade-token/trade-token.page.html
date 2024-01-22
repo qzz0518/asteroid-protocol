@@ -111,49 +111,93 @@
               </ion-col>
             </ion-row>
           </ion-grid>
-          <p-table #data [value]="positions" [tableStyle]="{ 'min-width': '30rem' }" [paginator]="true" [rows]="20"
-            [showCurrentPageReport]="true"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} listings" [globalFilterFields]="
-                                            ['name', 'ticker' ]" styleClass="token-list" [defaultSortOrder]="1"
-            sortField="ppt">
-            <ng-template pTemplate="header">
-              <tr>
-                <th pSortableColumn="id" pFrozenColumn>Listing # <p-sortIcon field="id"></p-sortIcon></th>
-                <th pSortableColumn="ppt">ATOM per Token <p-sortIcon field="ppt"></p-sortIcon></th>
-                <th pSortableColumn="amount">{{ token.ticker }} Tokens <p-sortIcon field="amount"></p-sortIcon>
-                </th>
-                <th pSortableColumn="total">Total ATOM <p-sortIcon field="total"></p-sortIcon></th>
-                <th pSortableColumn="seller_address">Seller <p-sortIcon field="seller_address"></p-sortIcon></th>
-                <th pSortableColumn="date_created">Listed Date <p-sortIcon field="date_created"></p-sortIcon></th>
-                <th>&nbsp;</th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-position>
-              <tr class="no-click">
-                <td pFrozenColumn>{{ position.id }}</td>
-                <td class="mono">{{ position.ppt | tokenDecimals:6 | number:'1.6-6' }} (${{position.ppt *
-                  baseTokenUSD |
-                  tokenDecimals:6 | number:'1.6-6'}})</td>
-                <td class="mono">{{ position.amount | tokenDecimals:token.decimals | number:'1.6-6'}}</td>
-                <td class="mono">{{ position.total | tokenDecimals:6 | number:'1.6-6'}} (${{position.total *
-                  baseTokenUSD |
-                  tokenDecimals:6 | number:'1.6-6'}})</td>
-                <td>{{ formatAddress(position.seller_address) }}</td>
-                <td>{{ position.date_created | utcToLocal | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
-                <td class="text-end">
-                  <ion-button fill="outline" color="success" (click)="buy(position.id)"
-                    *ngIf="position.seller_address != walletAddress">Buy</ion-button>
-                  <ion-button fill="outline" color="warning" (click)="cancel(position.id)"
-                    *ngIf="position.seller_address == walletAddress">Cancel</ion-button>
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage">
-              <tr>
-                <td colspan="4">No listings found</td>
-              </tr>
-            </ng-template>
-          </p-table>
+          <ion-row>
+            <ion-col size="12">
+              <ion-segment value="buy" color="primary" (ionChange)="sectionChanged($event)">
+                <ion-segment-button value="buy">
+                  <ion-label>Buy</ion-label>
+                </ion-segment-button>
+                <ion-segment-button value="activity">
+                  <ion-label>Activity</ion-label>
+                </ion-segment-button>
+              </ion-segment>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="selectedSection == 'buy'">
+            <ion-col size="12">
+              <p-table #data [value]="positions" [paginator]="true" [rows]="25" [tableStyle]="{ 'min-width': '30rem' }"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} listings" [globalFilterFields]="
+                                              ['name', 'ticker' ]" styleClass="token-list" [defaultSortOrder]="1"
+              sortField="ppt">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th pSortableColumn="id" pFrozenColumn>Listing # <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="ppt">ATOM per Token <p-sortIcon field="ppt"></p-sortIcon></th>
+                    <th pSortableColumn="amount">{{ token.ticker }} Tokens <p-sortIcon field="amount"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="total">Total ATOM <p-sortIcon field="total"></p-sortIcon></th>
+                    <th pSortableColumn="seller_address">Seller <p-sortIcon field="seller_address"></p-sortIcon></th>
+                    <th pSortableColumn="date_created">Listed Date <p-sortIcon field="date_created"></p-sortIcon></th>
+                    <th>&nbsp;</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-position>
+                  <tr class="no-click">
+                    <td pFrozenColumn>{{ position.id }}</td>
+                    <td class="mono">{{ position.ppt | tokenDecimals:6 | number:'1.6-6' }} (${{position.ppt *
+                      baseTokenUSD |
+                      tokenDecimals:6 | number:'1.6-6'}})</td>
+                    <td class="mono">{{ position.amount | tokenDecimals:token.decimals | number:'1.6-6'}}</td>
+                    <td class="mono">{{ position.total | tokenDecimals:6 | number:'1.6-6'}} (${{position.total *
+                      baseTokenUSD |
+                      tokenDecimals:6 | number:'1.6-6'}})</td>
+                    <td>{{ formatAddress(position.seller_address) }}</td>
+                    <td>{{ position.date_created | utcToLocal | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                    <td class="text-end">
+                      <ion-button fill="outline" color="success" (click)="buy(position.id)"
+                        *ngIf="position.seller_address != walletAddress">Buy</ion-button>
+                      <ion-button fill="outline" color="warning" (click)="cancel(position.id)"
+                        *ngIf="position.seller_address == walletAddress">Cancel</ion-button>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="4">No listings found</td>
+                  </tr>
+                </ng-template>
+               </p-table>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="selectedSection == 'activity'">
+            <ion-col size="12">
+              <p-table [value]="activityData" [paginator]="true" [rows]="25" [tableStyle]="{ 'min-width': '30rem' }" >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>ATOM per Token</th>
+                    <th>{{ token.ticker }}</th>
+                    <th>USD</th>
+                    <th>Buyer</th>
+                    <th>Seller</th>
+                    <th>Date</th>
+                    <th>Transaction</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                  <tr>
+                    <td>{{ item.rate / 1000000 | number:'1.6-6' }} (${{ (item.rate / 1000000) * baseTokenUSD | number:'1.5-5' }})</td>
+                    <td>{{ item.amount_quote / 1000000 | number:'1.0-0' }}</td>
+                    <td>${{ item.total_usd | number:'1.2-2' }}</td>
+                    <td>{{ formatAddress(item.buyer_address) }}</td>
+                    <td>{{ formatAddress(item.seller_address) }}</td>
+                    <td>{{ item.transaction.date_created | utcToLocal | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                    <td><a [href]="explorerTxUrl + item.transaction.hash">Link</a></td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </ion-col>
+          </ion-row>
         </div>
         <div style="height: 100px;"></div>
       </ion-col>

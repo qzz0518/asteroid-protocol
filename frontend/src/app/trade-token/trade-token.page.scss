@@ -49,6 +49,8 @@ h1 {
 }
 
 .token-stats {
+    width: 100%; /* 确保占满父元素宽度 */
+    margin: auto; /* 居中对齐 */
     background-color: rgba(0, 0, 0, 0.2);
     // display: inline-flex;
     border-radius: 10px;
