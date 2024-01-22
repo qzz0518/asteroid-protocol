@@ -116,6 +116,7 @@ export class TradeTokenPage implements OnInit {
           total: true,
           is_cancelled: false,
           is_filled: false,
+          date_created: true
         }
       ]
     });
@@ -198,6 +199,7 @@ export class TradeTokenPage implements OnInit {
           total: true,
           is_cancelled: false,
           is_filled: false,
+          date_created: true,
         }
       ]
     }).on(({ token_open_position }) => {
@@ -360,5 +362,10 @@ export class TradeTokenPage implements OnInit {
     });
     modal.present();
   }
+
+  formatAddress(address: string): string {
+    return `${address.substring(0, 12)} ... ${address.substring(address.length - 5)}`;
+  }
+
 
 }
