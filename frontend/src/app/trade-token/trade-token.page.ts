@@ -30,6 +30,8 @@ import { WalletRequiredModalPage } from '../wallet-required-modal/wallet-require
 export class TradeTokenPage implements OnInit {
   selectedSection: string = 'buy';
   activityData: any[] = [];
+  indexerDelaySeconds: number = 0;
+  private intervalId: any;
   isLoading = false;
   token: any;
   positions: any;
@@ -51,7 +53,10 @@ export class TradeTokenPage implements OnInit {
     if (walletConnected) {
       this.walletAddress = (await this.walletService.getAccount()).address;
     }
-
+    this.updateIndexerDelay();
+    this.intervalId = setInterval(() => {
+      this.updateIndexerDelay();
+    }, 2000);
     const chain = Chain(environment.api.endpoint)
     const result = await chain('query')({
       token: [
@@ -215,6 +220,16 @@ export class TradeTokenPage implements OnInit {
     this.isLoading = false;
   }
 
+  private updateIndexerDelay() {
+    const query = { query: "query { status { date_updated } }" };
+    this.http.post('https://api.asteroidprotocol.io/v1/graphql', query)
+      .subscribe((response: any) => {
+        const serverTime = new Date(response.data.status[0].date_updated);
+        const currentTime = new Date();
+        const utcCurrentTime = new Date(currentTime.getTime() + currentTime.getTimezoneOffset() * 60000);
+        this.indexerDelaySeconds = Math.abs((utcCurrentTime.getTime() - serverTime.getTime()) / 1000);
+      });
+  }
   async buy(orderNumber: number) {
 
     const chain = Chain(environment.api.endpoint)

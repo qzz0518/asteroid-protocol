@@ -66,41 +66,60 @@
                 <p class="see-link">
                   <span>See: </span>
                   <a href="https://medium.com/@asteroidprotocol/asteroid-market-double-buy-solution-1a1312216f37" target="_blank">Asteroid Market Double-Buy Mitigation</a>
-                </p>                <p>
-                  <strong>Warning:</strong> The indexer can lag behind, and you can lose money buying stale listings. Wait for the launch of official marketplace if you don't understand the risks.
-                  <br>
-                  <strong>Estimated Indexer Delay:</strong> 6~8 sec
                 </p>
-                <p>
-                  <strong>警告：</strong>官方索引器可能会滞后，购买过时的列表可能会导致亏损。由于没有中间商，你的付款是直接打给卖家，这样会造成你付了钱，收不到币。如果您不了解风险，请等待官方更新市场的推出。
+                <p class="warning-text">
+                  <strong>Indexer Delay: </strong> <span>{{ indexerDelaySeconds }} sec</span>
                   <br>
-                  <strong>预计索引器延迟：</strong>6~8秒
+                  <span class="warning-highlight">Warning: </span> The indexer can lag behind, and you can lose money buying stale listings. Wait for the launch of official marketplace if you don't understand the risks.
+                </p>
+                <p class="warning-text">
+                  <span class="warning-highlight">警告：</span>官方索引器可能会滞后，购买过时的列表可能会导致亏损。由于没有中间商，你的付款是直接打给卖家，这样会造成你付了钱，收不到币。如果您不了解风险，请等待官方更新市场的推出。
+<!--                  <br>-->
+<!--                  <strong>索引器延迟：</strong><span>{{ indexerDelaySeconds }}秒</span>-->
                 </p>
               </div>
 
+
               <style>
                 .warning-message {
-                  background-color: #fffae6;
+                  background-color: #fff4f4; /* 浅红色背景 */
                   color: #333;
-                  border: 1px solid #ffa500;
-                  padding: 10px;
+                  border: 1px solid #ff4d4d; /* 深红色边框 */
+                  padding: 15px;
                   margin-top: 20px;
-                  font-size: 0.9em;
+                  font-size: 1em;
+                  border-radius: 5px;
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 }
+
                 .see-link {
-                  margin-bottom: 10px; /* Add space between this line and the next paragraph */
+                  margin-bottom: 10px;
                 }
+
                 .see-link a {
-                  color: #333;
+                  color: #007bff;
                   text-decoration: underline;
-                  font-size: 1.1em; /* Make the link text larger */
+                  font-size: 1.1em;
+                  font-weight: bold;
+                }
+                .see-link span {
+                  font-size: 1.1em;
                   font-weight: bold;
                 }
 
-                .see-link span {
-                  font-weight: bold;
-                  margin-right: 5px; /* Add space between 'see' and the link */
+                .warning-text {
+                  margin-bottom: 5px;
                 }
+
+                .warning-text span {
+                  font-size: 2em;
+                }
+                .warning-highlight {
+                  color: #d9534f; /* 红色文本 */
+                  font-weight: bold;
+                }
+
+
               </style>
 
             </ion-row>
