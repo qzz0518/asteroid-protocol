@@ -23,3 +23,10 @@ ion-content {
     width: 100%;
     text-align: center;
 }
+
+.balance-note {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.8em;
+  color: var(--ion-color-medium); // 或者您偏好的颜色
+}
