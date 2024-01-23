@@ -17,14 +17,15 @@
           <div *ngIf="isLoading">
             <ion-progress-bar type="indeterminate"></ion-progress-bar>
           </div>
-          <div class="base-token-price" *ngIf="!isLoading">
+          <div class="base-token-price" *ngIf="baseToken && !isLoading">
             <span class="ticker">
               {{ baseToken.base_token }}/USD
             </span>
-            <span class="price">
+                      <span class="price">
               ${{ baseToken.base_token_usd | number:'1.2-2'}}
             </span>
           </div>
+
           <p-table #data (sortFunction)="customSort($event)" [customSort]="true" [value]="tokens"
             [tableStyle]="{ 'min-width': '40rem' }" [paginator]="true" [rows]="50" [showCurrentPageReport]="true"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} markets" [globalFilterFields]="
