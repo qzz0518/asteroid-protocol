@@ -21,9 +21,15 @@
         <ion-col size-md="6" offset-md="3" size="12">
           <div formGroupName="basic">
             <div class="mt-4">
-              <ion-input label="Amount to sell" labelPlacement="stacked" fill="outline" placeholder="10"
-                [maskito]="decimalMask" [maskitoElement]="maskPredicate" formControlName="amount"></ion-input>
+              <ion-item>
+                <ion-label position="stacked">Amount to sell</ion-label>
+                <ion-input fill="outline" placeholder="10"
+                           [maskito]="decimalMask" [maskitoElement]="maskPredicate" formControlName="amount"></ion-input>
+                <ion-button fill="clear" size="small" (click)="setMaxAmount()">Max</ion-button>
+                <ion-note slot="end">{{ senderBalance | number:'1.2-6' }} {{ ticker }}</ion-note>
+              </ion-item>
             </div>
+
             <div class="mt-4">
               <ion-input label="Price per token" labelPlacement="stacked" fill="outline" placeholder="10"
                 [maskito]="decimalMask" [maskitoElement]="maskPredicate" formControlName="price"></ion-input>

@@ -65,7 +65,13 @@ export class SellModalPage implements OnInit {
       min: 0,
     });
   }
-
+  setMaxAmount() {
+    this.sellForm.patchValue({
+      basic: {
+        amount: this.senderBalance
+      }
+    });
+  }
   async ngOnInit() {
     const sender = await this.walletService.getAccount();
 
