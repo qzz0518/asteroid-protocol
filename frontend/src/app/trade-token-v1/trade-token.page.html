@@ -206,7 +206,7 @@
                 <ng-template pTemplate="body" let-item>
                   <tr>
                     <td>{{ item.rate / 1000000 | number:'1.6-6' }} (${{ (item.rate / 1000000) * baseTokenUSD | number:'1.5-5' }})</td>
-                    <td>{{ item.amount_quote / 1000000 | number:'1.0-0' }}</td>
+                    <td>{{ item.amount_base / 1000000 | number:'1.0-0' }}</td>
                     <td>${{ item.total_usd | number:'1.2-2' }}</td>
                     <td>
                       <a [routerLink]="['/app/wallet', item.buyer_address]">{{ formatAddress(item.buyer_address) }}</a>

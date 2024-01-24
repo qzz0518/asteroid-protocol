@@ -403,7 +403,7 @@ export class TradeTokenPage implements OnInit {
       query: `
         query {
           token_trade_history(where: { _and: [{ token: { ticker: { _eq: "${ticker}" } } }] }, limit: 500, order_by: [{ transaction_id: desc }]) {
-            amount_quote
+            amount_base
             buyer_address
             seller_address
             rate

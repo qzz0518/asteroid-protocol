@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, AlertController } from '@ionic/angular';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { Chain, Subscription, order_by } from '../core/types/zeus';
@@ -19,15 +21,19 @@ import { WalletRequiredModalPage } from '../wallet-required-modal/wallet-require
 import { MarketplaceService } from '../core/metaprotocol/marketplace.service';
 import { SortEvent } from 'primeng/api';
 import { DateAgoPipe } from '../core/pipe/date-ago.pipe';
+import {UtcToLocalPipe} from "../core/pipe/utc-to-local.pipe";
 
 @Component({
   selector: 'app-trade-token-v2',
   templateUrl: './trade-token-v2.page.html',
   styleUrls: ['./trade-token-v2.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ShortenAddressPipe, RouterLink, DatePipe, HumanSupplyPipe, TokenDecimalsPipe, TableModule, DateAgoPipe]
+  imports: [IonicModule, CommonModule, FormsModule, ShortenAddressPipe, RouterLink, DatePipe, HumanSupplyPipe, TokenDecimalsPipe, TableModule, DateAgoPipe, UtcToLocalPipe]
 })
 export class TradeTokenV2Page implements OnInit {
+  selectedSection: string = 'buy';
+  activityData: any[] = [];
+
   isLoading = false;
   token: any;
   listings: any;
@@ -40,13 +46,14 @@ export class TradeTokenV2Page implements OnInit {
   currentBlock: number = 0;
   limit: number = 2000;
 
-  constructor(private activatedRoute: ActivatedRoute, private protocolService: MarketplaceService, private modalCtrl: ModalController, private alertController: AlertController, private walletService: WalletService, private priceService: PriceService) {
+  constructor(private activatedRoute: ActivatedRoute, private protocolService: MarketplaceService, private modalCtrl: ModalController, private alertController: AlertController, private walletService: WalletService, private priceService: PriceService,private http: HttpClient) {
     this.tokenLaunchDate = new Date();
   }
 
   async ngOnInit() {
     this.isLoading = true;
-
+    this.selectedSection = this.activatedRoute.snapshot.queryParams["section"] || 'buy';
+    this.loadActivityData();
     const walletConnected = await this.walletService.isConnected();
     if (walletConnected) {
       this.walletAddress = (await this.walletService.getAccount()).address;
@@ -310,6 +317,7 @@ export class TradeTokenV2Page implements OnInit {
     });
 
     this.isLoading = false;
+
   }
 
   async deposit(listingHash: string) {
@@ -625,4 +633,47 @@ export class TradeTokenV2Page implements OnInit {
     });
   }
 
+  sectionChanged($event: any) {
+    this.selectedSection = $event.detail.value;
+    if (this.selectedSection === 'activity') {
+      this.loadActivityData();
+    }
+  }
+
+  async loadActivityData() {
+    const ticker = this.activatedRoute.snapshot.params["quote"].toUpperCase();
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+    });
+    const body = {
+      query: `
+        query {
+          token_trade_history(where: { _and: [{ token: { ticker: { _eq: "${ticker}" } } }] }, limit: 100, order_by: [{ transaction_id: desc }]) {
+            amount_base
+            buyer_address
+            seller_address
+            rate
+            total_usd
+            transaction {
+              hash
+              date_created
+            }
+          }
+        }
+      `
+    };
+
+    this.http.post('https://api.asteroidprotocol.io/v1/graphql', JSON.stringify(body), { headers })
+      .subscribe({
+        next: (data: any) => {
+          this.activityData = data.data.token_trade_history;
+        },
+        error: (error) => {
+          console.error('Error fetching activity data:', error);
+        }
+      });
+  }
+  formatAddress(address: string): string {
+    return `${address.substring(0, 12)} ... ${address.substring(address.length - 5)}`;
+  }
 }
