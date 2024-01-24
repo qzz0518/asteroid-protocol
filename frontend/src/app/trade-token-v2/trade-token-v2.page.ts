@@ -652,7 +652,7 @@ export class TradeTokenV2Page implements OnInit {
       data: {
         labels: labels,
         datasets: [{
-          label: 'Price per Mint',
+          label: 'Price per Mint (USD)',
           data: data,
           fill: false,
           borderColor: 'rgb(75, 192, 192)',
