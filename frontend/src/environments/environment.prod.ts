@@ -47,7 +47,7 @@ export const environment = {
         buy: {
           receiver: "cosmos162mdca7dfk2rpqlv0hhc6sepnvwdxv5yl74uqa",
           denom: "uatom",
-          amount: "0.01",
+          amount: "0.02",
           type: "dynamic-percent"
         },
         delist: {
@@ -62,11 +62,35 @@ export const environment = {
         },
         marketplace: {
           "list.cft20": {
-            receiver: "",
+            receiver: "neutron1unc0549k2f0d7mjjyfm94fuz2x53wrx3px0pr55va27grdgmspcqgzfr8p",
+            denom: "uatom",
+            amount: "0",
+            minTradeSize: 0.000001,
+            minDepositAbsolute: 0.000001,
+            minDepositPercent: 0.01,
+            maxDepositPercent: 1,
+            minTimeout: 100,
+            maxTimeout: 300,
+          },
+          "buy.cft20": {
+            receiver: "neutron1unc0549k2f0d7mjjyfm94fuz2x53wrx3px0pr55va27grdgmspcqgzfr8p",
+            denom: "uatom",
+            amount: "0.02",
+            type: "dynamic-percent",
+            minTradeSize: 0.000001,
+          },
+          "deposit": {
+            receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
             denom: "uatom",
             amount: "0",
             minTradeSize: 0.000001,
           },
+          "delist": {
+            receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
+            denom: "uatom",
+            amount: "0",
+            minTradeSize: 0.000001,
+          }
         },
       },
     },
