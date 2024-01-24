@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -19,7 +19,8 @@ import { TableModule } from 'primeng/table';
 import { PriceService } from '../core/service/price.service';
 import { SellModalPage } from '../sell-modal/sell-modal.page';
 import { WalletRequiredModalPage } from '../wallet-required-modal/wallet-required-modal.page';
-
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 @Component({
   selector: 'app-trade-token',
   templateUrl: './trade-token.page.html',
@@ -30,6 +31,10 @@ import { WalletRequiredModalPage } from '../wallet-required-modal/wallet-require
 export class TradeTokenPage implements OnInit {
   selectedSection: string = 'buy';
   activityData: any[] = [];
+  chart!: Chart;
+  perMintLimit!: number;
+  @ViewChild('priceChart') priceChart!: ElementRef;
+
   indexerDelaySeconds: number = 0;
   private intervalId: any;
   isLoading = false;
@@ -91,7 +96,7 @@ export class TradeTokenPage implements OnInit {
     });
 
     this.token = result.token[0];
-
+    this.perMintLimit = parseInt(this.token.per_mint_limit);
     const positionsResult = await chain('query')({
       token_open_position: [
         {
@@ -393,7 +398,32 @@ export class TradeTokenPage implements OnInit {
       this.loadActivityData();
     }
   }
+  createChart(labels: string[], data: number[]) {
+    if (this.chart) {
+      this.chart.destroy();
+    }
 
+    this.chart = new Chart(this.priceChart.nativeElement, {
+      type: 'line', // 您可以更改图表类型，例如 'bar'
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Price per Mint (USD)',
+          data: data,
+          fill: false,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
   async loadActivityData() {
     const ticker = this.activatedRoute.snapshot.params["quote"].toUpperCase();
     const headers = new HttpHeaders({
@@ -402,7 +432,7 @@ export class TradeTokenPage implements OnInit {
     const body = {
       query: `
         query {
-          token_trade_history(where: { _and: [{ token: { ticker: { _eq: "${ticker}" } } }] }, limit: 500, order_by: [{ transaction_id: desc }]) {
+          token_trade_history(where: { _and: [{ token: { ticker: { _eq: "${ticker}" } } }] }, limit: 1000, order_by: [{ transaction_id: desc }]) {
             amount_base
             buyer_address
             seller_address
@@ -421,10 +451,43 @@ export class TradeTokenPage implements OnInit {
       .subscribe({
         next: (data: any) => {
           this.activityData = data.data.token_trade_history;
+          const filteredData = this.activityData.filter(item => item.amount_base >= 500000000);
+          const groupedData = this.groupDataBy30Minutes(filteredData);
+          const sortedGroupedData = new Map([...groupedData.entries()].sort((a, b) => {
+            return new Date(a[0]).getTime() - new Date(b[0]).getTime();
+          }));
+          // 准备图表数据
+          const labels = Array.from(sortedGroupedData.keys());
+          const r = Array.from(sortedGroupedData.values()).map(group => {
+            const totalUsd = group.reduce((sum: any, item: { total_usd: any; }) => sum + item.total_usd, 0);
+            const totalAmountBase = group.reduce((sum: any, item: { amount_base: any; }) => sum + item.amount_base, 0);
+            return totalUsd / (totalAmountBase / this.perMintLimit);
+          });
+          this.createChart(labels, r);
         },
         error: (error) => {
           console.error('Error fetching activity data:', error);
         }
       });
+  }
+  groupDataBy30Minutes(data: any[]) {
+    const grouped = new Map();
+
+    data.forEach(item => {
+      // 将 UTC 时间转换为本地时间
+      let date = new Date(item.transaction.date_created);
+      date = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+
+      // 将时间调整为每30分钟
+      date.setMinutes(date.getMinutes() - (date.getMinutes() % 30), 0, 0);
+      const key = date.toLocaleString();
+
+      if (!grouped.has(key)) {
+        grouped.set(key, []);
+      }
+      grouped.get(key).push(item);
+    });
+
+    return grouped;
   }
 }

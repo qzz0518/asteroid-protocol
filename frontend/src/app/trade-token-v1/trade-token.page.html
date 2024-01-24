@@ -191,6 +191,9 @@
           </ion-row>
           <ion-row *ngIf="selectedSection == 'activity'">
             <ion-col size="12">
+              <ion-col size="12">
+                <canvas #priceChart></canvas>
+              </ion-col>
               <p-table [value]="activityData" [paginator]="true" [rows]="25" [tableStyle]="{ 'min-width': '30rem' }" >
                 <ng-template pTemplate="header">
                   <tr>
