@@ -61,62 +61,6 @@
                   </span>
                 </div>
               </ion-col>
-
-              <div class="warning-message">
-                <p class="see-link">
-                  <span>See: </span>
-                  <a href="https://medium.com/@asteroidprotocol/asteroid-market-double-buy-solution-1a1312216f37" target="_blank">Asteroid Market Double-Buy Mitigation</a>
-                </p>
-                <p class="warning-text">
-                  <strong>Indexer Delay: </strong> <span>{{ indexerDelaySeconds }} sec</span>
-                  <br>
-                  <span class="warning-highlight">Warning: </span> This is an unofficial marketplace. Currently, all the marketplaces available for trading are unofficial and carry risks. Due to indexing delays, it may result in double BUY and cause you losses ATOM. If the delay number above exceeds 10 seconds, please refrain from buy any tokens.
-                </p>
-              </div>
-
-
-              <style>
-                .warning-message {
-                  background-color: #fff4f4; /* 浅红色背景 */
-                  color: #333;
-                  border: 1px solid #ff4d4d; /* 深红色边框 */
-                  padding: 15px;
-                  margin-top: 20px;
-                  font-size: 1em;
-                  border-radius: 5px;
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                }
-
-                .see-link {
-                  margin-bottom: 10px;
-                }
-
-                .see-link a {
-                  color: #007bff;
-                  text-decoration: underline;
-                  font-size: 1.1em;
-                  font-weight: bold;
-                }
-                .see-link span {
-                  font-size: 1.1em;
-                  font-weight: bold;
-                }
-
-                .warning-text {
-                  margin-bottom: 5px;
-                }
-
-                .warning-text span {
-                  font-size: 2em;
-                }
-                .warning-highlight {
-                  color: #d9534f; /* 红色文本 */
-                  font-weight: bold;
-                }
-
-
-              </style>
-
             </ion-row>
             <ion-row>
               <ion-col size="12" class="text-end">
@@ -125,99 +69,45 @@
               </ion-col>
             </ion-row>
           </ion-grid>
-          <ion-row>
-            <ion-col size="12">
-              <ion-segment value="buy" color="primary" (ionChange)="sectionChanged($event)">
-                <ion-segment-button value="buy">
-                  <ion-label>Buy</ion-label>
-                </ion-segment-button>
-                <ion-segment-button value="activity">
-                  <ion-label>Activity</ion-label>
-                </ion-segment-button>
-              </ion-segment>
-            </ion-col>
-          </ion-row>
-          <ion-row *ngIf="selectedSection == 'buy'">
-            <ion-col size="12">
-              <p-table #data [value]="positions" [paginator]="true" [rows]="25" [tableStyle]="{ 'min-width': '30rem' }"
-              [showCurrentPageReport]="true"
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} listings" [globalFilterFields]="
-                                              ['name', 'ticker' ]" styleClass="token-list" [defaultSortOrder]="1"
-              sortField="ppt">
-                <ng-template pTemplate="header">
-                  <tr>
-                    <th pSortableColumn="id" pFrozenColumn>Listing # <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="ppt">ATOM per Token <p-sortIcon field="ppt"></p-sortIcon></th>
-                    <th pSortableColumn="amount">{{ token.ticker }} Tokens <p-sortIcon field="amount"></p-sortIcon>
-                    </th>
-                    <th pSortableColumn="total">Total ATOM <p-sortIcon field="total"></p-sortIcon></th>
-                    <th pSortableColumn="seller_address">Seller <p-sortIcon field="seller_address"></p-sortIcon></th>
-                    <th pSortableColumn="date_created">Listed Date <p-sortIcon field="date_created"></p-sortIcon></th>
-                    <th>&nbsp;</th>
-                  </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-position>
-                  <tr class="no-click">
-                    <td pFrozenColumn>{{ position.id }}</td>
-                    <td class="mono">{{ position.ppt | tokenDecimals:6 | number:'1.6-6' }} (${{position.ppt *
-                      baseTokenUSD |
-                      tokenDecimals:6 | number:'1.6-6'}})</td>
-                    <td class="mono">{{ position.amount | tokenDecimals:token.decimals | number:'1.6-6'}}</td>
-                    <td class="mono">{{ position.total | tokenDecimals:6 | number:'1.6-6'}} (${{position.total *
-                      baseTokenUSD |
-                      tokenDecimals:6 | number:'1.6-6'}})</td>
-                    <td>
-                      <a [routerLink]="['/app/wallet', position.seller_address]">{{ formatAddress(position.seller_address) }}</a>
-                    </td>
-                    <td>{{ position.date_created | utcToLocal | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
-                    <td class="text-end">
-                      <ion-button fill="outline" color="success" (click)="buy(position.id)"
-                        *ngIf="position.seller_address != walletAddress">Buy</ion-button>
-                      <ion-button fill="outline" color="warning" (click)="cancel(position.id)"
-                        *ngIf="position.seller_address == walletAddress">Cancel</ion-button>
-                    </td>
-                  </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                  <tr>
-                    <td colspan="4">No listings found</td>
-                  </tr>
-                </ng-template>
-               </p-table>
-            </ion-col>
-          </ion-row>
-          <ion-row *ngIf="selectedSection == 'activity'">
-            <ion-col size="12">
-              <p-table [value]="activityData" [paginator]="true" [rows]="25" [tableStyle]="{ 'min-width': '30rem' }" >
-                <ng-template pTemplate="header">
-                  <tr>
-                    <th>ATOM per Token</th>
-                    <th>{{ token.ticker }}</th>
-                    <th>USD</th>
-                    <th>Buyer</th>
-                    <th>Seller</th>
-                    <th>Date</th>
-                    <th>Transaction</th>
-                  </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-item>
-                  <tr>
-                    <td>{{ item.rate / 1000000 | number:'1.6-6' }} (${{ (item.rate / 1000000) * baseTokenUSD | number:'1.5-5' }})</td>
-                    <td>{{ item.amount_quote / 1000000 | number:'1.0-0' }}</td>
-                    <td>${{ item.total_usd | number:'1.2-2' }}</td>
-                    <td>
-                      <a [routerLink]="['/app/wallet', item.buyer_address]">{{ formatAddress(item.buyer_address) }}</a>
-                    </td>
-                    <td>
-                      <a [routerLink]="['/app/wallet', item.seller_address]">{{ formatAddress(item.seller_address) }}</a>
-                    </td>
-                    <td>{{ item.transaction.date_created | utcToLocal | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
-                    <td><a [href]="explorerTxUrl + item.transaction.hash">Link</a></td>
-                  </tr>
-                </ng-template>
-              </p-table>
-            </ion-col>
-          </ion-row>
+          <p-table #data [value]="positions" [tableStyle]="{ 'min-width': '30rem' }" [paginator]="true" [rows]="10"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} listings" [globalFilterFields]="
+                                            ['name', 'ticker' ]" styleClass="token-list" [defaultSortOrder]="1"
+            sortField="ppt">
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="id" pFrozenColumn>Listing # <p-sortIcon field="id"></p-sortIcon></th>
+                <th pSortableColumn="ppt">ATOM per Token <p-sortIcon field="ppt"></p-sortIcon></th>
+                <th pSortableColumn="amount">{{ token.ticker }} Tokens <p-sortIcon field="amount"></p-sortIcon>
+                </th>
+                <th pSortableColumn="total">Total ATOM <p-sortIcon field="total"></p-sortIcon></th>
+                <th>&nbsp;</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-position>
+              <tr class="no-click">
+                <td pFrozenColumn>{{ position.id }}</td>
+                <td class="mono">{{ position.ppt | tokenDecimals:6 | number:'1.6-6' }} (${{position.ppt *
+                  baseTokenUSD |
+                  tokenDecimals:6 | number:'1.6-6'}})</td>
+                <td class="mono">{{ position.amount | tokenDecimals:token.decimals | number:'1.6-6'}}</td>
+                <td class="mono">{{ position.total | tokenDecimals:6 | number:'1.6-6'}} (${{position.total *
+                  baseTokenUSD |
+                  tokenDecimals:6 | number:'1.6-6'}})</td>
+                <td class="text-end">
+                  <ion-button fill="outline" color="success" (click)="buy(position.id)"
+                    *ngIf="position.seller_address != walletAddress">Buy</ion-button>
+                  <ion-button fill="outline" color="warning" (click)="cancel(position.id)"
+                    *ngIf="position.seller_address == walletAddress">Cancel</ion-button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4">No listings found</td>
+              </tr>
+            </ng-template>
+          </p-table>
         </div>
         <div style="height: 100px;"></div>
       </ion-col>

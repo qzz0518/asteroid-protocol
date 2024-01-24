@@ -1,16 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, AlertController } from '@ionic/angular';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from 'src/environments/environment';
-import {Chain, order_by, Subscription} from '../core/types/zeus';
+import { Chain, Subscription } from '../core/types/zeus';
 import { ShortenAddressPipe } from '../core/pipe/shorten-address.pipe';
 import { HumanSupplyPipe } from '../core/pipe/human-supply.pipe';
 import { TokenDecimalsPipe } from '../core/pipe/token-with-decimals.pipe';
-import { UtcToLocalPipe } from '../core/pipe/utc-to-local.pipe';
 import { CFT20Service } from '../core/metaprotocol/cft20.service';
 import { TransactionFlowModalPage } from '../transaction-flow-modal/transaction-flow-modal.page';
 import { WalletService } from '../core/service/wallet.service';
@@ -25,13 +22,9 @@ import { WalletRequiredModalPage } from '../wallet-required-modal/wallet-require
   templateUrl: './trade-token.page.html',
   styleUrls: ['./trade-token.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ShortenAddressPipe, RouterLink, DatePipe, HumanSupplyPipe, TokenDecimalsPipe, TableModule, UtcToLocalPipe]
+  imports: [IonicModule, CommonModule, FormsModule, ShortenAddressPipe, RouterLink, DatePipe, HumanSupplyPipe, TokenDecimalsPipe, TableModule]
 })
 export class TradeTokenPage implements OnInit {
-  selectedSection: string = 'buy';
-  activityData: any[] = [];
-  indexerDelaySeconds: number = 0;
-  private intervalId: any;
   isLoading = false;
   token: any;
   positions: any;
@@ -41,22 +34,18 @@ export class TradeTokenPage implements OnInit {
   baseTokenUSD: number = 0.00;
   walletAddress: string = '';
 
-  constructor(private activatedRoute: ActivatedRoute, private protocolService: CFT20Service, private modalCtrl: ModalController, private alertController: AlertController, private walletService: WalletService, private priceService: PriceService,private http: HttpClient) {
+  constructor(private activatedRoute: ActivatedRoute, private protocolService: CFT20Service, private modalCtrl: ModalController, private alertController: AlertController, private walletService: WalletService, private priceService: PriceService) {
     this.tokenLaunchDate = new Date();
   }
 
   async ngOnInit() {
     this.isLoading = true;
-    this.selectedSection = this.activatedRoute.snapshot.queryParams["section"] || 'buy';
-    this.loadActivityData();
+
     const walletConnected = await this.walletService.isConnected();
     if (walletConnected) {
       this.walletAddress = (await this.walletService.getAccount()).address;
     }
-    this.updateIndexerDelay();
-    this.intervalId = setInterval(() => {
-      this.updateIndexerDelay();
-    }, 2000);
+
     const chain = Chain(environment.api.endpoint)
     const result = await chain('query')({
       token: [
@@ -127,7 +116,6 @@ export class TradeTokenPage implements OnInit {
           total: true,
           is_cancelled: false,
           is_filled: false,
-          date_created: true
         }
       ]
     });
@@ -210,7 +198,6 @@ export class TradeTokenPage implements OnInit {
           total: true,
           is_cancelled: false,
           is_filled: false,
-          date_created: true,
         }
       ]
     }).on(({ token_open_position }) => {
@@ -220,16 +207,6 @@ export class TradeTokenPage implements OnInit {
     this.isLoading = false;
   }
 
-  private updateIndexerDelay() {
-    const query = { query: "query { status { date_updated } }" };
-    this.http.post('https://api.asteroidprotocol.io/v1/graphql', query)
-      .subscribe((response: any) => {
-        const serverTime = new Date(response.data.status[0].date_updated);
-        const currentTime = new Date();
-        const utcCurrentTime = new Date(currentTime.getTime() + currentTime.getTimezoneOffset() * 60000);
-        this.indexerDelaySeconds = Math.abs((utcCurrentTime.getTime() - serverTime.getTime()) / 1000);
-      });
-  }
   async buy(orderNumber: number) {
 
     const chain = Chain(environment.api.endpoint)
@@ -305,6 +282,7 @@ export class TradeTokenPage implements OnInit {
       const feePercentage = parseFloat(environment.fees.protocol.cft20.buy.amount);
       const fee = parseInt(totaluatom.toString()) * feePercentage;
       overrideFee = fee.toString();
+      console.log("overrideFee", overrideFee);
     }
 
     // Construct metaprotocol memo message
@@ -384,47 +362,4 @@ export class TradeTokenPage implements OnInit {
     modal.present();
   }
 
-  formatAddress(address: string): string {
-    return `${address.substring(0, 12)} ... ${address.substring(address.length - 5)}`;
-  }
-  sectionChanged($event: any) {
-    this.selectedSection = $event.detail.value;
-    if (this.selectedSection === 'activity') {
-      this.loadActivityData();
-    }
-  }
-
-  async loadActivityData() {
-    const ticker = this.activatedRoute.snapshot.params["quote"].toUpperCase();
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-    });
-    const body = {
-      query: `
-        query {
-          token_trade_history(where: { _and: [{ token: { ticker: { _eq: "${ticker}" } } }] }, limit: 500, order_by: [{ transaction_id: desc }]) {
-            amount_quote
-            buyer_address
-            seller_address
-            rate
-            total_usd
-            transaction {
-              hash
-              date_created
-            }
-          }
-        }
-      `
-    };
-
-    this.http.post('https://api.asteroidprotocol.io/v1/graphql', JSON.stringify(body), { headers })
-      .subscribe({
-        next: (data: any) => {
-          this.activityData = data.data.token_trade_history;
-        },
-        error: (error) => {
-          console.error('Error fetching activity data:', error);
-        }
-      });
-  }
 }

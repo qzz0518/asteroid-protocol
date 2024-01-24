@@ -45,15 +45,28 @@ export const environment = {
           minTradeSize: 0.000001,
         },
         buy: {
-          receiver: "neutron162mdca7dfk2rpqlv0hhc6sepnvwdxv5ympu766",
+          receiver: "cosmos162mdca7dfk2rpqlv0hhc6sepnvwdxv5yl74uqa",
           denom: "uatom",
-          amount: "0.02", // Default 2%
+          amount: "0.01",
           type: "dynamic-percent"
         },
         delist: {
           receiver: "",
           denom: "uatom",
           amount: "0"
+        },
+        reserve: {
+          receiver: "",
+          denom: "uatom",
+          amount: "0",
+        },
+        marketplace: {
+          "list.cft20": {
+            receiver: "",
+            denom: "uatom",
+            amount: "0",
+            minTradeSize: 0.000001,
+          },
         },
       },
     },
