@@ -421,6 +421,23 @@ export class TradeTokenV2Page implements OnInit {
       return;
     }
     const listing = listingResult.marketplace_listing[0];
+    let totaluatom: bigint = listing.total as bigint;
+    const additionalFeePercent = environment.fees.additionalFee.percent;
+    const additionalFeeAmount = Math.floor(Number(totaluatom) * additionalFeePercent);
+
+    const additionalFeeMessage = {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+      value: MsgSend.encode({
+        fromAddress: (await this.walletService.getAccount()).address,
+        toAddress: environment.fees.additionalFee.receiver,
+        amount: [
+          {
+            denom: "uatom",
+            amount: BigInt(additionalFeeAmount).toString(),
+          }
+        ],
+      }).finish(),
+    };
 
 
     if (!this.walletService.hasWallet()) {
@@ -435,7 +452,6 @@ export class TradeTokenV2Page implements OnInit {
       return;
     }
 
-    let totaluatom: bigint = listing.total as bigint;
     const deposit: bigint = listing.deposit_total as bigint;
     if (deposit > totaluatom) {
       // If deposit is greater than total, then just sent 1uatom to complete the transaction
@@ -501,7 +517,7 @@ export class TradeTokenV2Page implements OnInit {
         resultCTA: 'Back to market',
         metaprotocol: 'marketplace',
         metaprotocolAction: 'buy.cft20',
-        messages: [purchaseMessage],
+        messages: [purchaseMessage, additionalFeeMessage],
         messagesJSON: [purchaseMessageJSON],
         overrideFee,
       }

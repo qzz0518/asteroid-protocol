@@ -92,11 +92,15 @@ export const environment = {
           amount: "0",
           minTradeSize: 0.000001,
         }
-      }
+      },
     },
     chain: {
       gasLimit: "12000000"
-    }
+    },
+    additionalFee: {
+      receiver: "cosmos162mdca7dfk2rpqlv0hhc6sepnvwdxv5yl74uqa",
+      percent: 0.01,  // 1%
+    },
   },
   api: {
     endpoint: 'https://api.asteroidprotocol.io/v1/graphql',
