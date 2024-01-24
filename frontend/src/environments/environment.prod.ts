@@ -12,7 +12,7 @@ export const environment = {
     protocol: {
       inscription: {
         inscribe: {
-          receiver: "",
+          receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
           denom: "uatom",
           amount: "0"
         },
@@ -24,22 +24,22 @@ export const environment = {
       },
       cft20: {
         deploy: {
-          receiver: "",
+          receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
           denom: "uatom",
           amount: "0"
         },
         mint: {
-          receiver: "",
+          receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
           denom: "uatom",
           amount: "0"
         },
         transfer: {
-          receiver: "",
+          receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
           denom: "uatom",
           amount: "0"
         },
         list: {
-          receiver: "",
+          receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
           denom: "uatom",
           amount: "0",
           minTradeSize: 0.000001,
@@ -50,49 +50,49 @@ export const environment = {
           amount: "0.02",
           type: "dynamic-percent"
         },
-        delist: {
-          receiver: "",
-          denom: "uatom",
-          amount: "0"
-        },
         reserve: {
-          receiver: "",
+          receiver: "cosmos162mdca7dfk2rpqlv0hhc6sepnvwdxv5yl74uqa",
           denom: "uatom",
           amount: "0",
         },
-        marketplace: {
-          "list.cft20": {
-            receiver: "neutron1unc0549k2f0d7mjjyfm94fuz2x53wrx3px0pr55va27grdgmspcqgzfr8p",
-            denom: "uatom",
-            amount: "0",
-            minTradeSize: 0.000001,
-            minDepositAbsolute: 0.000001,
-            minDepositPercent: 0.01,
-            maxDepositPercent: 1,
-            minTimeout: 100,
-            maxTimeout: 300,
-          },
-          "buy.cft20": {
-            receiver: "neutron1unc0549k2f0d7mjjyfm94fuz2x53wrx3px0pr55va27grdgmspcqgzfr8p",
-            denom: "uatom",
-            amount: "0.02",
-            type: "dynamic-percent",
-            minTradeSize: 0.000001,
-          },
-          "deposit": {
-            receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
-            denom: "uatom",
-            amount: "0",
-            minTradeSize: 0.000001,
-          },
-          "delist": {
-            receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
-            denom: "uatom",
-            amount: "0",
-            minTradeSize: 0.000001,
-          }
+        delist: {
+          receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
+          denom: "uatom",
+          amount: "0"
         },
       },
+      marketplace: {
+        "list.cft20": {
+          receiver: "neutron1unc0549k2f0d7mjjyfm94fuz2x53wrx3px0pr55va27grdgmspcqgzfr8p",
+          denom: "uatom",
+          amount: "0",
+          minTradeSize: 0.000001,
+          minDepositAbsolute: 0.000001,
+          minDepositPercent: 0.01,
+          maxDepositPercent: 1,
+          minTimeout: 100,
+          maxTimeout: 300,
+        },
+        "buy.cft20": {
+          receiver: "neutron1unc0549k2f0d7mjjyfm94fuz2x53wrx3px0pr55va27grdgmspcqgzfr8p",
+          denom: "uatom",
+          amount: "0.02",
+          type: "dynamic-percent",
+          minTradeSize: 0.000001,
+        },
+        "deposit": {
+          receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
+          denom: "uatom",
+          amount: "0",
+          minTradeSize: 0.000001,
+        },
+        "delist": {
+          receiver: "cosmos1y6338yfh4syssaglcgh3ved9fxhfn0jk4v8qtv",
+          denom: "uatom",
+          amount: "0",
+          minTradeSize: 0.000001,
+        }
+      }
     },
     chain: {
       gasLimit: "12000000"
@@ -102,7 +102,7 @@ export const environment = {
     endpoint: 'https://api.asteroidprotocol.io/v1/graphql',
     wss: 'wss://api.asteroidprotocol.io/v1/graphql',
     explorer: 'https://www.mintscan.io/cosmos/tx/',
-    simulateEndpoint: "https://cosmos-rest.cosmos-apis.com",
+    simulateEndpoint: "https://asteroids-rest-vkjug.ondigitalocean.app/https://rest-cosmoshub.goldenratiostaking.net",
     stargazeNameEndpoint: "https://rest.stargaze-apis.com/cosmwasm/wasm/v1/contract/stars1fx74nkqkw2748av8j7ew7r3xt9cgjqduwn8m0ur5lhe49uhlsasszc5fhr/smart/"
   },
   chain: {
@@ -149,4 +149,5 @@ export const environment = {
       coinGeckoId: "cosmos",
     },
   },
+
 };
