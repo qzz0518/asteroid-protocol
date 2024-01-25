@@ -780,49 +780,49 @@ export class TradeTokenV2Page implements OnInit {
       orderByClause = { ppt: 'asc' };
     }
 
-    // const listingsResult = await this.chain('query')({
-    //   marketplace_cft20_detail: [
-    //     {
-    //
-    //       where: {
-    //         token_id: {
-    //           _eq: this.token.id
-    //         },
-    //         marketplace_listing: {
-    //           is_cancelled: {
-    //             _eq: false
-    //           },
-    //           is_filled: {
-    //             _eq: false
-    //           }
-    //         }
-    //       },
-    //       offset: event.first,
-    //       limit: event.rows,
-    //       order_by: [
-    //         orderByClause
-    //       ]
-    //     },
-    //     {
-    //       id: true,
-    //       marketplace_listing: {
-    //         seller_address: true,
-    //         total: true,
-    //         depositor_address: true,
-    //         is_deposited: true,
-    //         depositor_timedout_block: true,
-    //         deposit_total: true,
-    //         transaction: {
-    //           hash: true
-    //         },
-    //       },
-    //       ppt: true,
-    //       amount: true,
-    //       date_created: true,
-    //     }
-    //   ]
-    // });
-    // this.listings = listingsResult.marketplace_cft20_detail;
+    const listingsResult = await this.chain('query')({
+      marketplace_cft20_detail: [
+        {
+
+          where: {
+            token_id: {
+              _eq: this.token.id
+            },
+            marketplace_listing: {
+              is_cancelled: {
+                _eq: false
+              },
+              is_filled: {
+                _eq: false
+              }
+            }
+          },
+          offset: event.first,
+          limit: event.rows,
+          order_by: [
+            orderByClause
+          ]
+        },
+        {
+          id: true,
+          marketplace_listing: {
+            seller_address: true,
+            total: true,
+            depositor_address: true,
+            is_deposited: true,
+            depositor_timedout_block: true,
+            deposit_total: true,
+            transaction: {
+              hash: true
+            },
+          },
+          ppt: true,
+          amount: true,
+          date_created: true,
+        }
+      ]
+    });
+    this.listings = listingsResult.marketplace_cft20_detail;
 
     this.isTableLoading = false;
   }
