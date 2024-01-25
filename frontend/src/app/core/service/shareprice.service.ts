@@ -4,17 +4,13 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class SharedDataService {
-  private _averagePrice: number;
+  private tokenPrices = new Map<string, number>();
 
-  constructor() {
-    this._averagePrice = 0;
+  setPrice(token: string, price: number) {
+    this.tokenPrices.set(token, price);
   }
 
-  get averagePrice(): number {
-    return this._averagePrice;
-  }
-
-  set averagePrice(value: number) {
-    this._averagePrice = value;
+  getPrice(token: string): number {
+    return this.tokenPrices.get(token) || 0;
   }
 }

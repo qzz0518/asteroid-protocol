@@ -835,7 +835,7 @@ export class TradeTokenV2Page implements OnInit {
           const sortedGroupedData = new Map([...groupedData.entries()].sort((a, b) => {
             return new Date(a[0]).getTime() - new Date(b[0]).getTime();
           }));
-          this.sharedDataService.averagePrice = averagePrice;
+          this.sharedDataService.setPrice(this.token.ticker, this.token.last_price_base);
           // 准备图表数据
           const labels = Array.from(sortedGroupedData.keys());
           const r = Array.from(sortedGroupedData.values()).map(group => {

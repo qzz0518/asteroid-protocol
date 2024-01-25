@@ -85,7 +85,7 @@ export class SellModalPage implements OnInit {
   }
   async ngOnInit() {
     const sender = await this.walletService.getAccount();
-    const averagePrice = this.sharedDataService.averagePrice;
+    const averagePrice = this.sharedDataService.getPrice(this.ticker)
     const chain = Chain(environment.api.endpoint);
     const result = await chain('query')({
       token: [
