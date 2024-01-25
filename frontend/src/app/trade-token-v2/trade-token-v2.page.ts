@@ -68,9 +68,8 @@ export class TradeTokenV2Page implements OnInit {
 
   async ngOnInit() {
     this.isLoading = true;
-    this.selectedSection = this.activatedRoute.snapshot.queryParams["section"] || 'buy';
-    // 异步加载 loadActivityData
     this.loadActivityData();
+    this.selectedSection = this.activatedRoute.snapshot.queryParams["section"] || 'buy';
     const walletConnected = await this.walletService.isConnected();
     if (walletConnected) {
       this.walletAddress = (await this.walletService.getAccount()).address;
@@ -364,9 +363,7 @@ export class TradeTokenV2Page implements OnInit {
     }).on(({ status }) => {
       this.currentBlock = status[0].last_processed_height;
     });
-
     this.isLoading = false;
-
   }
 
   async deposit(listingHash: string) {
@@ -694,27 +691,23 @@ export class TradeTokenV2Page implements OnInit {
     this.createChart(this.labels, this.r_data); // 使用当前数据重新生成图表
   }
 
-  createChart(labels: any[], data: any[]) {
-    // 销毁旧的图表实例
-    if (this.chart) {
-      this.chart.destroy();
-    }
-
-    // 如果需要倒序显示
+  createChart(labels: string[], data: number[]) {
     if (!this.isAscending) {
       labels = [...labels].reverse();
       data = [...data].reverse();
     }
 
-    // 创建新的图表实例
+    if (this.chart) {
+      this.chart.destroy();
+    }
     this.chart = new Chart(this.priceChart.nativeElement, {
-      type: 'line', // 可以改为 'bar' 或 'area' 等其他类型
+      type: 'line', // 您可以更改图表类型，例如 'bar'
       data: {
         labels: labels,
         datasets: [{
-          label: 'Price per Mint (USD) | ' + (this.perMintLimit / 1000000) + ' ' + this.token.ticker,
+          label: 'Price per Mint (USD) | ' + this.perMintLimit / 1000000 + ' ' + this.token.ticker,
           data: data,
-          fill: false, // 对于面积图，将此设置为 true
+          fill: false,
           borderColor: 'rgb(75, 192, 192)',
           backgroundColor: 'rgba(75, 192, 192, 0.5)', // 柱状图或面积图的背景色
           tension: 0.5, // 曲线平滑度
@@ -725,8 +718,6 @@ export class TradeTokenV2Page implements OnInit {
         }]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,
