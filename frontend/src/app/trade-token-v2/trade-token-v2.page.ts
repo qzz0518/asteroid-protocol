@@ -59,7 +59,6 @@ export class TradeTokenV2Page implements OnInit {
   isTableLoading: boolean = true;
   chain: any;
   total: number = 1000;
-  activityDataLoaded = false;
 
   constructor(private activatedRoute: ActivatedRoute, private protocolService: MarketplaceService, private modalCtrl: ModalController, private alertController: AlertController, private walletService: WalletService, private priceService: PriceService, private http: HttpClient,private sharedDataService: SharedDataService) {
     this.tokenLaunchDate = new Date();
@@ -112,7 +111,7 @@ export class TradeTokenV2Page implements OnInit {
     this.token = result.token[0];
     this.perMintLimit = parseInt(this.token.per_mint_limit);
     const [listingsResult, statusResult, depositListingsResult] = await Promise.all([
-      await this.chain('query')({
+      this.chain('query')({
         marketplace_cft20_detail: [
           {
             where: {
@@ -154,7 +153,7 @@ export class TradeTokenV2Page implements OnInit {
           }
         ]
       }),
-      await this.chain('query')({
+      this.chain('query')({
         status: [
           {
             where: {
@@ -170,7 +169,7 @@ export class TradeTokenV2Page implements OnInit {
           }
         ]
       }),
-      await this.chain('query')({
+      this.chain('query')({
         marketplace_cft20_detail: [
           {
             where: {
@@ -685,7 +684,7 @@ export class TradeTokenV2Page implements OnInit {
 
   sectionChanged($event: any) {
     this.selectedSection = $event.detail.value;
-    if (this.selectedSection === 'activity' && !this.activityDataLoaded) {
+    if (this.selectedSection === 'activity') {
       this.loadActivityData();
     }
   }
