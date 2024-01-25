@@ -73,7 +73,7 @@ export class MarketsPage implements OnInit {
       variables: {}
     };
 
-    this.http.post('https://api.asteroidprotocol.io/v1/graphql', body, {headers})
+    this.http.post(environment.api.endpoint, body, {headers})
       .subscribe({
         next: (res: any) => {
           this.tokens = res.data.token;

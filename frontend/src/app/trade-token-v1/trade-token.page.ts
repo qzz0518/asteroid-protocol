@@ -227,7 +227,7 @@ export class TradeTokenPage implements OnInit {
 
   private updateIndexerDelay() {
     const query = { query: "query { status { date_updated } }" };
-    this.http.post('https://api.asteroidprotocol.io/v1/graphql', query)
+    this.http.post(environment.api.endpoint, query)
       .subscribe((response: any) => {
         const serverTime = new Date(response.data.status[0].date_updated);
         const currentTime = new Date();
@@ -447,7 +447,7 @@ export class TradeTokenPage implements OnInit {
       `
     };
 
-    this.http.post('https://api.asteroidprotocol.io/v1/graphql', JSON.stringify(body), { headers })
+    this.http.post(environment.api.endpoint, JSON.stringify(body), { headers })
       .subscribe({
         next: (data: any) => {
           this.activityData = data.data.token_trade_history;

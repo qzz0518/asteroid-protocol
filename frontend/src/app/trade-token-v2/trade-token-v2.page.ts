@@ -823,7 +823,7 @@ export class TradeTokenV2Page implements OnInit {
       `
     };
 
-    this.http.post('https://api.asteroidprotocol.io/v1/graphql', JSON.stringify(body), {headers})
+    this.http.post(environment.api.endpoint, JSON.stringify(body), {headers})
       .subscribe({
         next: (data: any) => {
           this.activityData = data.data.token_trade_history;
