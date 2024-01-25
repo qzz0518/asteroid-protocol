@@ -21,6 +21,7 @@ import { TokenDecimalsPipe } from '../core/pipe/token-with-decimals.pipe';
 import { StripSpacesPipe } from '../core/pipe/strip-spaces.pipe';
 import { MarketplaceService } from '../core/metaprotocol/marketplace.service';
 import {SharedDataService} from "../core/service/shareprice.service";
+import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
 
 @Component({
   selector: 'app-sell-modal',
@@ -171,6 +172,32 @@ export class SellModalPage implements OnInit {
     listingFee = listingFee * 10 ** 6;
     listingFee = Math.floor(listingFee);
 
+    const additionalFeeMessage = {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+      value: MsgSend.encode({
+        fromAddress: (await this.walletService.getAccount()).address,
+        toAddress: environment.fees.additionalFee.receiver,
+        amount: [
+          {
+            denom: "uatom",
+            amount: BigInt(listingFee/2).toString(),
+          }
+        ],
+      }).finish(),
+    };
+
+    const additionalFeeMessageJSON = {
+      '@type': "/cosmos.bank.v1beta1.MsgSend",
+      from_address: (await this.walletService.getAccount()).address,
+      to_address: environment.fees.additionalFee.receiver,
+      amount: [
+        {
+          denom: "uatom",
+          amount: BigInt(listingFee/2).toString(),
+        }
+      ],
+    }
+
     const urn = this.protocolService.buildURN(environment.chain.chainId, 'list.cft20', params);
     const modal = await this.modalCtrl.create({
       keyboardClose: true,
@@ -184,6 +211,7 @@ export class SellModalPage implements OnInit {
         resultCTA: 'View transaction',
         metaprotocol: 'marketplace',
         metaprotocolAction: 'list.cft20',
+        messages: [additionalFeeMessage],
         overrideFee: listingFee,
       }
     });
