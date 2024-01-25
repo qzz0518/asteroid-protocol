@@ -694,36 +694,71 @@ export class TradeTokenV2Page implements OnInit {
     this.createChart(this.labels, this.r_data); // 使用当前数据重新生成图表
   }
 
-  createChart(labels: string[], data: number[]) {
+  createChart(labels: any[], data: any[]) {
+    // 销毁旧的图表实例
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    // 如果需要倒序显示
     if (!this.isAscending) {
       labels = [...labels].reverse();
       data = [...data].reverse();
     }
 
-    if (this.chart) {
-      this.chart.destroy();
-    }
+    // 创建新的图表实例
     this.chart = new Chart(this.priceChart.nativeElement, {
-      type: 'line', // 您可以更改图表类型，例如 'bar'
+      type: 'line', // 可以改为 'bar' 或 'area' 等其他类型
       data: {
         labels: labels,
         datasets: [{
-          label: 'Price per Mint (USD) | ' + this.perMintLimit / 1000000 + ' ' + this.token.ticker,
+          label: 'Price per Mint (USD) | ' + (this.perMintLimit / 1000000) + ' ' + this.token.ticker,
           data: data,
-          fill: false,
+          fill: false, // 对于面积图，将此设置为 true
           borderColor: 'rgb(75, 192, 192)',
-          tension: 0.1
+          backgroundColor: 'rgba(75, 192, 192, 0.5)', // 柱状图或面积图的背景色
+          tension: 0.5, // 曲线平滑度
+          pointBackgroundColor: 'rgb(75, 192, 192)',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgb(75, 192, 192)'
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         scales: {
           y: {
-            beginAtZero: true
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Price (USD)'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Time'
+            }
           }
+        },
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+          },
+        },
+        hover: {
+          mode: 'nearest',
+          intersect: true
         }
       }
     });
   }
+
   async load(event: TableLazyLoadEvent) {
 
     this.isTableLoading = true;
