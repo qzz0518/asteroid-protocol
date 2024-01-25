@@ -59,6 +59,8 @@ export class TradeTokenV2Page implements OnInit {
   isTableLoading: boolean = true;
   chain: any;
   total: number = 1000;
+  activityDataLoaded = false;
+
   constructor(private activatedRoute: ActivatedRoute, private protocolService: MarketplaceService, private modalCtrl: ModalController, private alertController: AlertController, private walletService: WalletService, private priceService: PriceService, private http: HttpClient,private sharedDataService: SharedDataService) {
     this.tokenLaunchDate = new Date();
     this.chain = Chain(environment.api.endpoint)
@@ -68,6 +70,7 @@ export class TradeTokenV2Page implements OnInit {
   async ngOnInit() {
     this.isLoading = true;
     this.selectedSection = this.activatedRoute.snapshot.queryParams["section"] || 'buy';
+    // 异步加载 loadActivityData
     this.loadActivityData();
     const walletConnected = await this.walletService.isConnected();
     if (walletConnected) {
@@ -104,124 +107,131 @@ export class TradeTokenV2Page implements OnInit {
           date_created: true,
         }
       ]
-    });
-
+    })
+    // const result =
     this.token = result.token[0];
     this.perMintLimit = parseInt(this.token.per_mint_limit);
-    const listingsResult = await this.chain('query')({
-      marketplace_cft20_detail: [
-        {
-          where: {
-            token_id: {
-              _eq: this.token.id
-            },
-            marketplace_listing: {
-              is_cancelled: {
-                _eq: false
+    const [listingsResult, statusResult, depositListingsResult] = await Promise.all([
+      await this.chain('query')({
+        marketplace_cft20_detail: [
+          {
+            where: {
+              token_id: {
+                _eq: this.token.id
               },
-              is_filled: {
-                _eq: false
+              marketplace_listing: {
+                is_cancelled: {
+                  _eq: false
+                },
+                is_filled: {
+                  _eq: false
+                }
+              }
+            },
+            limit: this.limit,
+            order_by: [
+              {
+                ppt: order_by.asc
+              }
+            ]
+          },
+          {
+            id: true,
+            marketplace_listing: {
+              seller_address: true,
+              total: true,
+              depositor_address: true,
+              is_deposited: true,
+              depositor_timedout_block: true,
+              deposit_total: true,
+              transaction: {
+                hash: true
+              },
+            },
+            ppt: true,
+            amount: true,
+            date_created: true,
+          }
+        ]
+      }),
+      await this.chain('query')({
+        status: [
+          {
+            where: {
+              chain_id: {
+                _eq: environment.chain.chainId
               }
             }
           },
-          limit: this.limit,
-          order_by: [
-            {
-              ppt: order_by.asc
-            }
-          ]
-        },
-        {
-          id: true,
-          marketplace_listing: {
-            seller_address: true,
-            total: true,
-            depositor_address: true,
-            is_deposited: true,
-            depositor_timedout_block: true,
-            deposit_total: true,
-            transaction: {
-              hash: true
+          {
+            base_token: true,
+            base_token_usd: true,
+            last_processed_height: true,
+          }
+        ]
+      }),
+      await this.chain('query')({
+        marketplace_cft20_detail: [
+          {
+            where: {
+              token_id: {
+                _eq: this.token.id
+              },
+              marketplace_listing: {
+                is_cancelled: {
+                  _eq: false
+                },
+                is_filled: {
+                  _eq: false
+                },
+                is_deposited: {
+                  _eq: true
+                },
+                depositor_address: {
+                  _eq: this.walletAddress
+                },
+                depositor_timedout_block: {
+                  _gt: this.currentBlock
+                }
+              }
             },
+            limit: this.limit,
+            order_by: [
+              {
+                ppt: order_by.asc
+              }
+            ]
           },
-          ppt: true,
-          amount: true,
-          date_created: true,
-        }
-      ]
-    });
+          {
+            id: true,
+            marketplace_listing: {
+              seller_address: true,
+              total: true,
+              depositor_address: true,
+              is_deposited: true,
+              depositor_timedout_block: true,
+              deposit_total: true,
+              transaction: {
+                hash: true
+              },
+            },
+            ppt: true,
+            amount: true,
+            date_created: true,
+          }
+        ]
+      })
+    ]);
+
+
+    // const listingsResult =
     this.listings = listingsResult.marketplace_cft20_detail;
 
-    const statusResult = await this.chain('query')({
-      status: [
-        {
-          where: {
-            chain_id: {
-              _eq: environment.chain.chainId
-            }
-          }
-        },
-        {
-          base_token: true,
-          base_token_usd: true,
-          last_processed_height: true,
-        }
-      ]
-    })
+    // const statusResult =
     this.baseTokenUSD = statusResult.status[0].base_token_usd;
     this.currentBlock = statusResult.status[0].last_processed_height;
 
-    const depositListingsResult = await this.chain('query')({
-      marketplace_cft20_detail: [
-        {
-          where: {
-            token_id: {
-              _eq: this.token.id
-            },
-            marketplace_listing: {
-              is_cancelled: {
-                _eq: false
-              },
-              is_filled: {
-                _eq: false
-              },
-              is_deposited: {
-                _eq: true
-              },
-              depositor_address: {
-                _eq: this.walletAddress
-              },
-              depositor_timedout_block: {
-                _gt: this.currentBlock
-              }
-            }
-          },
-          limit: this.limit,
-          order_by: [
-            {
-              ppt: order_by.asc
-            }
-          ]
-        },
-        {
-          id: true,
-          marketplace_listing: {
-            seller_address: true,
-            total: true,
-            depositor_address: true,
-            is_deposited: true,
-            depositor_timedout_block: true,
-            deposit_total: true,
-            transaction: {
-              hash: true
-            },
-          },
-          ppt: true,
-          amount: true,
-          date_created: true,
-        }
-      ]
-    });
+    // const depositListingsResult =
     this.depositedListings = depositListingsResult.marketplace_cft20_detail;
 
     const wsChain = Subscription(environment.api.wss);
@@ -675,7 +685,7 @@ export class TradeTokenV2Page implements OnInit {
 
   sectionChanged($event: any) {
     this.selectedSection = $event.detail.value;
-    if (this.selectedSection === 'activity') {
+    if (this.selectedSection === 'activity' && !this.activityDataLoaded) {
       this.loadActivityData();
     }
   }
@@ -745,49 +755,49 @@ export class TradeTokenV2Page implements OnInit {
       orderByClause = { ppt: 'asc' };
     }
 
-    const listingsResult = await this.chain('query')({
-      marketplace_cft20_detail: [
-        {
-
-          where: {
-            token_id: {
-              _eq: this.token.id
-            },
-            marketplace_listing: {
-              is_cancelled: {
-                _eq: false
-              },
-              is_filled: {
-                _eq: false
-              }
-            }
-          },
-          offset: event.first,
-          limit: event.rows,
-          order_by: [
-            orderByClause
-          ]
-        },
-        {
-          id: true,
-          marketplace_listing: {
-            seller_address: true,
-            total: true,
-            depositor_address: true,
-            is_deposited: true,
-            depositor_timedout_block: true,
-            deposit_total: true,
-            transaction: {
-              hash: true
-            },
-          },
-          ppt: true,
-          amount: true,
-          date_created: true,
-        }
-      ]
-    });
-    this.listings = listingsResult.marketplace_cft20_detail;
+    // const listingsResult = await this.chain('query')({
+    //   marketplace_cft20_detail: [
+    //     {
+    //
+    //       where: {
+    //         token_id: {
+    //           _eq: this.token.id
+    //         },
+    //         marketplace_listing: {
+    //           is_cancelled: {
+    //             _eq: false
+    //           },
+    //           is_filled: {
+    //             _eq: false
+    //           }
+    //         }
+    //       },
+    //       offset: event.first,
+    //       limit: event.rows,
+    //       order_by: [
+    //         orderByClause
+    //       ]
+    //     },
+    //     {
+    //       id: true,
+    //       marketplace_listing: {
+    //         seller_address: true,
+    //         total: true,
+    //         depositor_address: true,
+    //         is_deposited: true,
+    //         depositor_timedout_block: true,
+    //         deposit_total: true,
+    //         transaction: {
+    //           hash: true
+    //         },
+    //       },
+    //       ppt: true,
+    //       amount: true,
+    //       date_created: true,
+    //     }
+    //   ]
+    // });
+    // this.listings = listingsResult.marketplace_cft20_detail;
 
     this.isTableLoading = false;
   }
@@ -799,7 +809,7 @@ export class TradeTokenV2Page implements OnInit {
     const body = {
       query: `
         query {
-          token_trade_history(where: { _and: [{ token: { ticker: { _eq: "${ticker}" } } }] }, limit: 1000, order_by: [{ transaction_id: desc }]) {
+          token_trade_history(where: { _and: [{ token: { ticker: { _eq: "${ticker}" } } }] }, limit: 500, order_by: [{ transaction_id: desc }]) {
             amount_base
             buyer_address
             seller_address
