@@ -1,29 +1,32 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonicModule, ModalController, AlertController } from '@ionic/angular';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {CommonModule, DatePipe} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {IonicModule, ModalController, AlertController} from '@ionic/angular';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { environment } from 'src/environments/environment';
-import { Chain, Subscription, order_by } from '../core/types/zeus';
-import { ShortenAddressPipe } from '../core/pipe/shorten-address.pipe';
-import { HumanSupplyPipe } from '../core/pipe/human-supply.pipe';
-import { TokenDecimalsPipe } from '../core/pipe/token-with-decimals.pipe';
-import { CFT20Service } from '../core/metaprotocol/cft20.service';
-import { TransactionFlowModalPage } from '../transaction-flow-modal/transaction-flow-modal.page';
-import { WalletService } from '../core/service/wallet.service';
-import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import { TableModule } from 'primeng/table';
-import { PriceService } from '../core/service/price.service';
-import { SellModalPage } from '../sell-modal/sell-modal.page';
-import { WalletRequiredModalPage } from '../wallet-required-modal/wallet-required-modal.page';
-import { MarketplaceService } from '../core/metaprotocol/marketplace.service';
-import { SortEvent } from 'primeng/api';
-import { DateAgoPipe } from '../core/pipe/date-ago.pipe';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import {environment} from 'src/environments/environment';
+import {Chain, Subscription, order_by} from '../core/types/zeus';
+import {ShortenAddressPipe} from '../core/pipe/shorten-address.pipe';
+import {HumanSupplyPipe} from '../core/pipe/human-supply.pipe';
+import {TokenDecimalsPipe} from '../core/pipe/token-with-decimals.pipe';
+import {CFT20Service} from '../core/metaprotocol/cft20.service';
+import {TransactionFlowModalPage} from '../transaction-flow-modal/transaction-flow-modal.page';
+import {WalletService} from '../core/service/wallet.service';
+import {MsgSend} from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {PriceService} from '../core/service/price.service';
+import {SellModalPage} from '../sell-modal/sell-modal.page';
+import {WalletRequiredModalPage} from '../wallet-required-modal/wallet-required-modal.page';
+import {MarketplaceService} from '../core/metaprotocol/marketplace.service';
+import {SortEvent} from 'primeng/api';
+import {DateAgoPipe} from '../core/pipe/date-ago.pipe';
 import {UtcToLocalPipe} from "../core/pipe/utc-to-local.pipe";
-import { Chart, registerables } from 'chart.js';
+import {Chart, registerables} from 'chart.js';
+import {SharedDataService} from "../core/service/shareprice.service";
+
 Chart.register(...registerables);
+
 @Component({
   selector: 'app-trade-token-v2',
   templateUrl: './trade-token-v2.page.html',
@@ -48,9 +51,18 @@ export class TradeTokenV2Page implements OnInit {
   walletAddress: string = '';
   currentBlock: number = 0;
   limit: number = 2000;
+  sortOrderAsc = true;
+  isAscending: boolean = true;
 
-  constructor(private activatedRoute: ActivatedRoute, private protocolService: MarketplaceService, private modalCtrl: ModalController, private alertController: AlertController, private walletService: WalletService, private priceService: PriceService,private http: HttpClient) {
+  labels: string[] = [];
+  r_data: number[] = [];
+  isTableLoading: boolean = true;
+  chain: any;
+  total: number = 1000;
+  constructor(private activatedRoute: ActivatedRoute, private protocolService: MarketplaceService, private modalCtrl: ModalController, private alertController: AlertController, private walletService: WalletService, private priceService: PriceService, private http: HttpClient,private sharedDataService: SharedDataService) {
     this.tokenLaunchDate = new Date();
+    this.chain = Chain(environment.api.endpoint)
+
   }
 
   async ngOnInit() {
@@ -62,8 +74,7 @@ export class TradeTokenV2Page implements OnInit {
       this.walletAddress = (await this.walletService.getAccount()).address;
     }
 
-    const chain = Chain(environment.api.endpoint)
-    const result = await chain('query')({
+    const result = await this.chain('query')({
       token: [
         {
           where: {
@@ -97,7 +108,7 @@ export class TradeTokenV2Page implements OnInit {
 
     this.token = result.token[0];
     this.perMintLimit = parseInt(this.token.per_mint_limit);
-    const listingsResult = await chain('query')({
+    const listingsResult = await this.chain('query')({
       marketplace_cft20_detail: [
         {
           where: {
@@ -141,7 +152,7 @@ export class TradeTokenV2Page implements OnInit {
     });
     this.listings = listingsResult.marketplace_cft20_detail;
 
-    const statusResult = await chain('query')({
+    const statusResult = await this.chain('query')({
       status: [
         {
           where: {
@@ -160,7 +171,7 @@ export class TradeTokenV2Page implements OnInit {
     this.baseTokenUSD = statusResult.status[0].base_token_usd;
     this.currentBlock = statusResult.status[0].last_processed_height;
 
-    const depositListingsResult = await chain('query')({
+    const depositListingsResult = await this.chain('query')({
       marketplace_cft20_detail: [
         {
           where: {
@@ -186,6 +197,11 @@ export class TradeTokenV2Page implements OnInit {
             }
           },
           limit: this.limit,
+          order_by: [
+            {
+              ppt: order_by.asc
+            }
+          ]
         },
         {
           id: true,
@@ -224,7 +240,7 @@ export class TradeTokenV2Page implements OnInit {
           last_processed_height: true,
         }
       ]
-    }).on(({ status }) => {
+    }).on(({status}) => {
       this.baseTokenUSD = status[0].base_token_usd;
       this.currentBlock = status[0].last_processed_height;
     });
@@ -247,6 +263,11 @@ export class TradeTokenV2Page implements OnInit {
             }
           },
           limit: this.limit,
+          order_by: [
+            {
+              ppt: order_by.asc
+            }
+          ]
         },
         {
           id: true,
@@ -266,7 +287,7 @@ export class TradeTokenV2Page implements OnInit {
           date_created: true,
         }
       ]
-    }).on(({ marketplace_cft20_detail }) => {
+    }).on(({marketplace_cft20_detail}) => {
       this.listings = marketplace_cft20_detail;
     });
 
@@ -296,6 +317,11 @@ export class TradeTokenV2Page implements OnInit {
             }
           },
           limit: this.limit,
+          order_by: [
+            {
+              ppt: order_by.asc
+            }
+          ]
         },
         {
           id: true,
@@ -315,8 +341,19 @@ export class TradeTokenV2Page implements OnInit {
           date_created: true,
         }
       ]
-    }).on(({ marketplace_cft20_detail }) => {
+    }).on(({marketplace_cft20_detail}) => {
       this.depositedListings = marketplace_cft20_detail;
+    });
+    wsChain('subscription')({
+      status: [
+        {},
+        {
+          last_processed_height: true,
+          last_known_height: true,
+        }
+      ]
+    }).on(({ status }) => {
+      this.currentBlock = status[0].last_processed_height;
     });
 
     this.isLoading = false;
@@ -642,17 +679,27 @@ export class TradeTokenV2Page implements OnInit {
       this.loadActivityData();
     }
   }
+
+  toggleSortOrder() {
+    this.isAscending = !this.isAscending; // 切换排序状态
+    this.createChart(this.labels, this.r_data); // 使用当前数据重新生成图表
+  }
+
   createChart(labels: string[], data: number[]) {
+    if (!this.isAscending) {
+      labels = [...labels].reverse();
+      data = [...data].reverse();
+    }
+
     if (this.chart) {
       this.chart.destroy();
     }
-
     this.chart = new Chart(this.priceChart.nativeElement, {
       type: 'line', // 您可以更改图表类型，例如 'bar'
       data: {
         labels: labels,
         datasets: [{
-          label: 'Price per Mint (USD)',
+          label: 'Price per Mint (USD) | ' + this.perMintLimit / 1000000 + ' ' + this.token.ticker,
           data: data,
           fill: false,
           borderColor: 'rgb(75, 192, 192)',
@@ -667,6 +714,82 @@ export class TradeTokenV2Page implements OnInit {
         }
       }
     });
+  }
+  async load(event: TableLazyLoadEvent) {
+
+    this.isTableLoading = true;
+
+    // Determine the sort order
+    let sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
+
+    // Build the order_by clause based on the event.sortField and sortOrder
+    let orderByClause: any = {};
+    if (event.sortField) {
+      if (event.sortField == 'marketplace_listing.total') {
+        orderByClause = {
+          marketplace_listing: {
+            total: sortOrder
+          }
+        };
+      } else if (event.sortField == 'marketplace_listing.deposit_total') {
+        orderByClause = {
+          marketplace_listing: {
+            deposit_total: sortOrder
+          }
+        }
+      } else {
+        orderByClause[event.sortField as string] = sortOrder;
+      }
+    } else {
+      // Default sorting, if no sortField is provided
+      orderByClause = { ppt: 'asc' };
+    }
+
+    const listingsResult = await this.chain('query')({
+      marketplace_cft20_detail: [
+        {
+
+          where: {
+            token_id: {
+              _eq: this.token.id
+            },
+            marketplace_listing: {
+              is_cancelled: {
+                _eq: false
+              },
+              is_filled: {
+                _eq: false
+              }
+            }
+          },
+          offset: event.first,
+          limit: event.rows,
+          order_by: [
+            orderByClause
+          ]
+        },
+        {
+          id: true,
+          marketplace_listing: {
+            seller_address: true,
+            total: true,
+            depositor_address: true,
+            is_deposited: true,
+            depositor_timedout_block: true,
+            deposit_total: true,
+            transaction: {
+              hash: true
+            },
+          },
+          ppt: true,
+          amount: true,
+          date_created: true,
+        }
+      ]
+    });
+    this.listings = listingsResult.marketplace_cft20_detail;
+
+    this.isTableLoading = false;
   }
   async loadActivityData() {
     const ticker = this.activatedRoute.snapshot.params["quote"].toUpperCase();
@@ -691,15 +814,28 @@ export class TradeTokenV2Page implements OnInit {
       `
     };
 
-    this.http.post('https://api.asteroidprotocol.io/v1/graphql', JSON.stringify(body), { headers })
+    this.http.post('https://api.asteroidprotocol.io/v1/graphql', JSON.stringify(body), {headers})
       .subscribe({
         next: (data: any) => {
           this.activityData = data.data.token_trade_history;
+          const latestTransactions = this.activityData.slice(0, 5);
+          let totalAmount = 0;
+          let weightedPrice = 0;
+          latestTransactions.forEach(transaction => {
+            totalAmount += transaction.amount_base;
+            weightedPrice += transaction.rate * transaction.amount_base;
+          });
+          const averagePrice = totalAmount > 0 ? weightedPrice / totalAmount : 0;
+          this.token.last_price_base = parseFloat(averagePrice.toFixed(6));
+
+
+
           const filteredData = this.activityData.filter(item => item.amount_base >= 500000000);
           const groupedData = this.groupDataBy30Minutes(filteredData);
           const sortedGroupedData = new Map([...groupedData.entries()].sort((a, b) => {
             return new Date(a[0]).getTime() - new Date(b[0]).getTime();
           }));
+          this.sharedDataService.averagePrice = averagePrice;
           // 准备图表数据
           const labels = Array.from(sortedGroupedData.keys());
           const r = Array.from(sortedGroupedData.values()).map(group => {
@@ -707,6 +843,8 @@ export class TradeTokenV2Page implements OnInit {
             const totalAmountBase = group.reduce((sum: any, item: { amount_base: any; }) => sum + item.amount_base, 0);
             return totalUsd / (totalAmountBase / this.perMintLimit);
           });
+          this.r_data = r;
+          this.labels = labels;
           this.createChart(labels, r);
         },
         error: (error) => {
@@ -714,6 +852,7 @@ export class TradeTokenV2Page implements OnInit {
         }
       });
   }
+
   groupDataBy30Minutes(data: any[]) {
     const grouped = new Map();
 
@@ -734,6 +873,7 @@ export class TradeTokenV2Page implements OnInit {
 
     return grouped;
   }
+
   formatAddress(address: string): string {
     return `${address.substring(0, 12)} ... ${address.substring(address.length - 5)}`;
   }

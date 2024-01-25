@@ -43,7 +43,7 @@
                     {{ token.ticker }} / ATOM
                   </span>
                   <span class="value ms-3">
-                    {{ token.last_price_base | tokenDecimals:token.decimals }} ATOM (${{ baseTokenUSD *
+                    {{ token.last_price_base | tokenDecimals:token.decimals | number:'1.2-6' }} ATOM (${{ baseTokenUSD *
                     (token.last_price_base | tokenDecimals:token.decimals ) |
                     number:"1.2-6" }})
                   </span>
@@ -154,9 +154,10 @@
             </ion-row>
             <ion-row *ngIf="selectedSection == 'buy'">
               <ion-col size="12">
-                <p-table #data (sortFunction)="customSort($event)" [customSort]="true" [value]="listings"
+                <p-table #data (sortFunction)="customSort($event)" [customSort]="true" [lazy]="true" dataKey="id"
+                         (onLazyLoad)="load($event)" [totalRecords]="total" [value]="listings" [loading]="isTableLoading"
           [tableStyle]="{ 'min-width': '30rem' }" [paginator]="true" [rows]="25" [showCurrentPageReport]="true"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} listings" [globalFilterFields]="
+           currentPageReportTemplate="Showing {first} to {last} of many" [globalFilterFields]="
                                         ['name', 'ticker' ]" styleClass="token-list" [defaultSortOrder]="1"
           sortField="ppt">
           <ng-template pTemplate="header">
@@ -221,6 +222,7 @@
             <ion-row *ngIf="selectedSection == 'activity'">
               <ion-col size="12">
                 <ion-col size="12">
+                  <button (click)="toggleSortOrder()" style="background-color: #4CAF50; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;">Reverse Time</button>
                   <canvas #priceChart></canvas>
                 </ion-col>
                 <p-table [value]="activityData" [paginator]="true" [rows]="25" [tableStyle]="{ 'min-width': '30rem' }" >

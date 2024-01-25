@@ -20,6 +20,7 @@ import { TransactionFlowModalPage } from '../transaction-flow-modal/transaction-
 import { TokenDecimalsPipe } from '../core/pipe/token-with-decimals.pipe';
 import { StripSpacesPipe } from '../core/pipe/strip-spaces.pipe';
 import { MarketplaceService } from '../core/metaprotocol/marketplace.service';
+import {SharedDataService} from "../core/service/shareprice.service";
 
 @Component({
   selector: 'app-sell-modal',
@@ -49,7 +50,7 @@ export class SellModalPage implements OnInit {
   readonly maskPredicate: MaskitoElementPredicateAsync = async (el) => (el as HTMLIonInputElement).getInputElement();
   readonly decimalMaskPredicate: MaskitoElementPredicateAsync = async (el) => (el as HTMLIonInputElement).getInputElement();
 
-  constructor(private walletService: WalletService, private chainService: ChainService, private modalCtrl: ModalController, private router: Router, private builder: FormBuilder, private protocolService: MarketplaceService) {
+  constructor(private walletService: WalletService, private chainService: ChainService, private modalCtrl: ModalController, private router: Router, private builder: FormBuilder, private protocolService: MarketplaceService,private sharedDataService: SharedDataService) {
     addIcons({ checkmark, closeOutline, close });
 
     this.sellForm = this.builder.group({
@@ -84,7 +85,7 @@ export class SellModalPage implements OnInit {
   }
   async ngOnInit() {
     const sender = await this.walletService.getAccount();
-
+    const averagePrice = this.sharedDataService.averagePrice;
     const chain = Chain(environment.api.endpoint);
     const result = await chain('query')({
       token: [
@@ -104,7 +105,7 @@ export class SellModalPage implements OnInit {
     if (result.token.length > 0) {
       this.sellForm.patchValue({
         basic: {
-          price: TokenDecimalsPipe.prototype.transform(result.token[0].last_price_base as number, 6)
+          price: (averagePrice/1000000).toFixed(6)
         }
       });
     }
