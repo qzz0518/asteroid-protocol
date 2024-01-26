@@ -10,7 +10,7 @@ import { WalletService } from '../core/service/wallet.service';
 import { environment } from 'src/environments/environment';
 import { ChainService } from '../core/service/chain.service';
 import { delay } from '../core/helpers/delay';
-import { Chain } from '../core/types/zeus';
+import { Chain } from '../core/helpers/zeus';
 import { TxFee } from '../core/types/tx-fee';
 import { MaskitoElementPredicateAsync, MaskitoOptions } from '@maskito/core';
 import { maskitoNumberOptionsGenerator } from '@maskito/kit';

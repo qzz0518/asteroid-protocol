@@ -47,6 +47,7 @@
     "bootstrap": "^5.3.2",
     "buffer": "^6.0.3",
     "chart.js": "^4.4.1",
+    "fetch-retry": "^5.0.6",
     "graphql-ws": "^5.14.3",
     "ionicons": "^7.2.1",
     "lottie-web": "^5.12.2",

@@ -5,7 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { HumanTypePipe } from '../core/pipe/human-type.pipe';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { environment } from 'src/environments/environment';
-import { Chain } from '../core/types/zeus';
+import { Chain } from '../core/helpers/zeus';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { cloudDownloadOutline, eyeOffOutline, linkOutline } from "ionicons/icons";
 import { addIcons } from 'ionicons';

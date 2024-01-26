@@ -6,7 +6,8 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {environment} from 'src/environments/environment';
-import {Chain, Subscription, order_by} from '../core/types/zeus';
+import {Subscription, order_by} from '../core/types/zeus';
+import { Chain } from '../core/helpers/zeus';
 import {ShortenAddressPipe} from '../core/pipe/shorten-address.pipe';
 import {HumanSupplyPipe} from '../core/pipe/human-supply.pipe';
 import {TokenDecimalsPipe} from '../core/pipe/token-with-decimals.pipe';
