@@ -257,3 +257,16 @@ ion-item {
     border-radius: 0;
   }
 }
+
+.unofficial-market {
+  color: #FF5722; /* 醒目的颜色 */
+  font-weight: bold; /* 加粗字体 */
+  margin-top: 10px; /* 添加一些上边距 */
+  animation: pulse 2s infinite; /* 添加动画效果 */
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
