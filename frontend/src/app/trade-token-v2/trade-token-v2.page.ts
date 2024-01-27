@@ -835,7 +835,7 @@ export class TradeTokenV2Page implements OnInit {
     const body = {
       query: `
         query {
-          token_trade_history(where: { _and: [{ token: { ticker: { _eq: "${ticker}" } } }] }, limit: 1000, order_by: [{ transaction_id: desc }]) {
+          token_trade_history(where: { _and: [{ token: { ticker: { _eq: "${ticker}" } } }] }, limit: 5000, order_by: [{ transaction_id: desc }]) {
             amount_base
             buyer_address
             seller_address
